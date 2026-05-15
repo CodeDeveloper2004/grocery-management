@@ -1,0 +1,31 @@
+.footer {
+  background: #1f2937;
+  color: #fff;
+  padding: 40px 20px 20px;
+  margin-top: 50px;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.section {
+  flex: 1;
+  min-width: 200px;
+  margin-bottom: 20px;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+}
+
+.bottom {
+  text-align: center;
+  border-top: 1px solid #444;
+  margin-top: 20px;
+  padding-top: 10px;
+  font-size: 14px;
+}

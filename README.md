@@ -1,75 +1,47 @@
 # Smart Grocery Management System
 
-A full-stack grocery management application built using:
+Smart Grocery Management System is a full-stack web application built using React.js, Spring Boot, and MySQL. It helps manage inventory, products, orders, sales, and payments with secure JWT authentication, role-based access, analytics dashboard, and responsive UI for efficient grocery store operations.
 
+---
+
+# Tech Stack
+
+## Frontend
 - React.js
-- Spring Boot
-- MySQL
-- JWT Authentication
-- Tailwind CSS
-
----
-
-## Features
-
-- User Authentication
-- Role-Based Access
-- Inventory Management
-- Orders Management
-- Reports & Analytics
-- Dashboard
-- Responsive UI
-
----
-
-## Tech Stack
-
-### Frontend
-- React
 - Tailwind CSS
 - React Router
 - Axios
 
-### Backend
+## Backend
 - Spring Boot
 - Spring Security
-- JWT
-- JPA / Hibernate
+- JWT Authentication
+- Hibernate / JPA
 
-### Database
+## Database
 - MySQL
 
 ---
 
-## Setup Instructions
+# Features
 
-### Frontend
+- User Authentication
+- JWT Authorization
+- Role-Based Access Control
+- Dashboard Analytics
+- Inventory Management
+- Products Management
+- Orders Management
+- Reports & Analytics
+- Responsive Admin Dashboard
+- Payment Tracking
+
+---
+
+# Project Setup
+
+## Frontend Setup
 
 ```bash
 npm install
 npm run dev
-```
-
-### Backend
-
-```bash
-mvn spring-boot:run
-```
-
----
-
-## Database
-
-Import:
-
-```txt
-grocery_db.sql
-```
-
-into MySQL.
-
----
-
-## Author
-
-Sakhii

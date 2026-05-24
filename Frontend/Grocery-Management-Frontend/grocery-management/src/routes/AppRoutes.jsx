@@ -11,6 +11,8 @@ import Reports from "../pages/reports/Reports";
 import Users from "../pages/users/Users";
 import Settings from "../pages/settings/Settings";
 import Products from "../pages/products/Products";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import ResetPassword from "../pages/auth/ResetPassword";
 
 const AppRoutes = () => {
   return (
@@ -20,6 +22,8 @@ const AppRoutes = () => {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Layout Routes */}
       <Route element={<Layout />}>
@@ -37,7 +41,7 @@ const AppRoutes = () => {
       </Route>
 
     </Routes>
-  );
+  );  
 };
 
 export default AppRoutes;

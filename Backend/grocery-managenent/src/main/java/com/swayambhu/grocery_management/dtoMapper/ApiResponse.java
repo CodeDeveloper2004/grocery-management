@@ -1,20 +1,21 @@
 package com.swayambhu.grocery_management.dtoMapper;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
-@Data
+@AllArgsConstructor
+@Builder
 public class ApiResponse {
 
-//	public ApiResponse(String string, String string2) {
-//		// TODO Auto-generated constructor stub
-//	}
-
-	private String status;
+	private Boolean status;
 	
 	private String message;
 }

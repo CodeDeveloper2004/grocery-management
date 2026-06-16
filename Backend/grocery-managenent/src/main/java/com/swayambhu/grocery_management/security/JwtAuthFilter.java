@@ -1,15 +1,15 @@
 package com.swayambhu.grocery_management.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.io.IOException;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import io.jsonwebtoken.io.IOException;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,65 +18,133 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+    private final CustomUserDetailsService
+            userDetailsService;
+
+    public JwtAuthFilter(
+            JwtUtil jwtUtil,
+            CustomUserDetailsService
+                    userDetailsService
+    ) {
+
+        this.jwtUtil = jwtUtil;
+        this.userDetailsService =
+                userDetailsService;
+    }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-                                    throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
-        // 1. Get Authorization header
-        String authHeader = request.getHeader("Authorization");
+        String path = request.getServletPath();
 
-        String token = null;
-        String email = null;
+        // Skip auth APIs
+        if (path.startsWith("/api/auth")) {
 
-        // 2. Check if header contains Bearer token
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-            email = jwtUtil.extractEmail(token);
+            filterChain.doFilter(
+                    request,
+                    response
+            );
+
+            return;
         }
 
-        // 3. If email exists and user not authenticated
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        String authHeader =
+                request.getHeader(
+                        "Authorization"
+                );
 
-            // 4. Load user from DB
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        String token = null;
 
-            // 5. Validate token
-            if (jwtUtil.validateToken(token, userDetails.getUsername())) {
+        String email = null;
 
-                // 6. Create authentication object
-                UsernamePasswordAuthenticationToken authToken =
+        if (
+            authHeader != null &&
+            authHeader.startsWith("Bearer ")
+        ) {
+
+            token = authHeader.substring(7);
+
+            try {
+
+                email =
+                        jwtUtil.extractEmail(
+                                token
+                        );
+
+            }catch(ExpiredJwtException e) {
+
+                response.setStatus(401);
+
+                response.setContentType(
+                    "application/json"
+                );
+
+                response.getWriter().write(
+                    """
+                    {
+                        "success": false,
+                        "message": "JWT token has expired"
+                    }
+                    """
+                );
+
+                return;
+            }
+        }
+
+        if (
+            email != null &&
+            SecurityContextHolder
+                    .getContext()
+                    .getAuthentication() == null
+        ) {
+
+            UserDetails userDetails =
+                    userDetailsService
+                            .loadUserByUsername(
+                                    email
+                            );
+
+            if (
+                jwtUtil.validateToken(
+                        token,
+                        userDetails.getUsername()
+                )
+            ) {
+
+                UsernamePasswordAuthenticationToken
+                        authToken =
                         new UsernamePasswordAuthenticationToken(
+
                                 userDetails,
+
                                 null,
+
                                 userDetails.getAuthorities()
                         );
 
                 authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
+                        new WebAuthenticationDetailsSource()
+                                .buildDetails(request)
                 );
 
-                // 7. Set authentication in context
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                SecurityContextHolder
+                        .getContext()
+                        .setAuthentication(
+                                authToken
+                        );
             }
         }
 
-        // 8. Continue request
-        try {
-			filterChain.doFilter(request, response);
-		} catch (java.io.IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ServletException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        filterChain.doFilter(
+                request,
+                response
+        );
     }
 }

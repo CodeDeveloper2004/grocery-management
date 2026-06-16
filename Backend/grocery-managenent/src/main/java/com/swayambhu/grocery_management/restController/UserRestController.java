@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.swayambhu.grocery_management.dtoMapper.ApiResponse;
 import com.swayambhu.grocery_management.dtoMapper.AuthResponse;
+import com.swayambhu.grocery_management.dtoMapper.ForgotPasswordRequest;
+import com.swayambhu.grocery_management.dtoMapper.ResetPasswordRequest;
 import com.swayambhu.grocery_management.dtoMapper.UserLogin;
+import com.swayambhu.grocery_management.dtoMapper.UserProfileResponse;
 import com.swayambhu.grocery_management.dtoMapper.UserRegistrationDTO;
 import com.swayambhu.grocery_management.services.UserService;
 
@@ -37,4 +40,23 @@ public class UserRestController {
 	public ResponseEntity<?> validateUser(@Valid @RequestBody UserLogin login){
 		return ResponseEntity.ok(userService.loginUser(login));
 	}
+	
+	@PostMapping("/forgot-password")
+	public ResponseEntity<ApiResponse> forgotPassword(
+	        @Valid @RequestBody ForgotPasswordRequest request) {
+
+	    return ResponseEntity.ok(
+	            userService.forgotPassword(request)
+	    );
+	}
+
+	@PostMapping("/reset-password")
+	public ResponseEntity<ApiResponse> resetPassword(
+	        @Valid @RequestBody ResetPasswordRequest request) {
+
+	    return ResponseEntity.ok(
+	            userService.resetPassword(request)
+	    );
+	}
+	
 }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import Select from "react-select";
 
 const SearchableSelectField = ({
   label,
@@ -9,26 +9,19 @@ const SearchableSelectField = ({
   disabled = false,
 }) => {
 
-  const [search, setSearch] = useState("");
-
   const hasError =
     formik.touched[name] &&
     formik.errors[name];
 
-  const filteredOptions = useMemo(() => {
-
-    return options.filter((option) =>
-      option.label
-        ?.toLowerCase()
-        .includes(search.toLowerCase())
-    );
-
-  }, [search, options]);
+  const selectedOption =
+    options.find(
+      (option) =>
+        option.value === formik.values[name]
+    ) || null;
 
   return (
     <div className="space-y-2">
 
-      {/* LABEL */}
       <label className="block text-gray-700 font-medium">
 
         {label}
@@ -41,63 +34,66 @@ const SearchableSelectField = ({
 
       </label>
 
-      {/* SEARCH INPUT */}
-      <input
-        type="text"
-        placeholder={`Search ${label}`}
-        value={search}
-        onChange={(e) =>
-          setSearch(e.target.value)
+      <Select
+
+        options={options}
+
+        value={selectedOption}
+
+        isDisabled={disabled}
+
+        placeholder={`Select ${label}`}
+
+        onChange={(selected) => {
+
+          formik.setFieldValue(
+            name,
+            selected?.value || ""
+          );
+
+        }}
+
+        onBlur={() =>
+          formik.setFieldTouched(
+            name,
+            true
+          )
         }
-        disabled={disabled}
-        className="
-          w-full rounded-xl border border-gray-300
-          p-3 mb-2
-          focus:outline-none focus:ring-2
-          focus:ring-green-500
-        "
+
+        className="text-sm"
+
+        classNamePrefix="react-select"
+
+        styles={{
+
+          control: (base, state) => ({
+
+            ...base,
+
+            minHeight: "44px",
+
+            borderRadius: "12px",
+
+            borderColor: hasError
+              ? "#ef4444"
+              : state.isFocused
+              ? "#22c55e"
+              : "#d1d5db",
+
+            boxShadow: "none",
+
+            "&:hover": {
+              borderColor: hasError
+                ? "#ef4444"
+                : "#22c55e",
+            },
+
+          }),
+
+        }}
+
       />
 
-      {/* SELECT */}
-      <select
-        name={name}
-        disabled={disabled}
-        {...formik.getFieldProps(name)}
-        className={`
-          w-full rounded-xl border p-4
-          focus:outline-none focus:ring-2
-          transition duration-200
-
-          ${hasError
-            ? "border-red-500 focus:ring-red-400"
-            : "border-gray-300 focus:ring-green-500"
-          }
-
-          ${disabled
-            ? "bg-gray-100 cursor-not-allowed"
-            : "bg-white"
-          }
-        `}
-      >
-
-        <option value="">
-          Select {label}
-        </option>
-
-        {filteredOptions.map((option) => (
-
-          <option
-            key={option.value}
-            value={option.value}
-          >
-            {option.label}
-          </option>
-
-        ))}
-
-      </select>
-
-      {/* ERROR */}
       {hasError && (
 
         <p className="text-red-500 text-sm">

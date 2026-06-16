@@ -34,7 +34,7 @@ const InputField = ({
         disabled={disabled}
         {...formik.getFieldProps(name)}
         className={`
-          w-full rounded-xl border p-4
+          w-full rounded-xl border p-2
           focus:outline-none focus:ring-2
           transition duration-200
 

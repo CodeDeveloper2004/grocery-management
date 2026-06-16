@@ -115,7 +115,7 @@ useEffect(() => {
         fixed top-0 left-0
         transition-all duration-300
         flex flex-col justify-between
-        ${collapsed ? "w-20" : "w-64"}
+        ${collapsed ? "w-16" : "w-64"}
       `}
     >
 

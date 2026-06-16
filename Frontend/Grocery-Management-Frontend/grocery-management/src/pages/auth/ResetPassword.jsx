@@ -1,63 +1,73 @@
-import { useNavigate, Link } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 
-import { login } from "../../services/authService";
+import { resetPassword } from "../../services/authService";
 
 import GroceryImage from "../../assets/grocery-login.png";
 
-const Login = () => {
+const ResetPassword = () => {
+
   const navigate = useNavigate();
 
+  const location = useLocation();
+
+  const email = location.state?.email || "";
+
   const formik = useFormik({
+
     initialValues: {
-      email: "",
+      email: email,
+      otp: "",
       password: "",
-      rememberMe: false,
+      confirmPassword: "",
     },
 
     validationSchema: Yup.object({
-      email: Yup.string()
-        .email("Invalid email")
-        .required("Email is required"),
+
+      otp: Yup.string()
+        .required("OTP is required"),
 
       password: Yup.string()
-        .min(4, "Min 4 characters")
+        .min(6, "Minimum 6 characters")
         .required("Password is required"),
+
+      confirmPassword: Yup.string()
+        .oneOf(
+          [Yup.ref("password")],
+          "Passwords must match"
+        )
+        .required("Confirm password is required"),
     }),
 
-    onSubmit: async (values, { setSubmitting, setErrors }) => {
+    onSubmit: async (
+      values,
+      { setSubmitting, setErrors }
+    ) => {
+
       try {
-        const response = await login(values);
 
-        const token = response.body.token;
+        await resetPassword(values);
 
-        if (values.rememberMe) {
-          localStorage.setItem("token", token);
-        } else {
-          sessionStorage.setItem("token", token);
-        }
-
-        navigate("/dashboard");
+        navigate("/login");
 
       } catch (error) {
 
-        console.log(error.response);
-
         const message =
           error.response?.data?.message ||
-          error.response?.data ||
           "Something went wrong";
 
         setErrors({
-          email: message,
+          otp: message,
         });
 
       } finally {
+
         setSubmitting(false);
+
       }
     },
   });
@@ -70,40 +80,41 @@ const Login = () => {
 
         <div className="max-w-6xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
 
-          {/* LEFT SIDE IMAGE SECTION */}
+          {/* LEFT */}
           <div className="bg-green-600 hidden lg:flex items-center justify-center p-10">
 
             <div className="text-center">
 
               <img
                 src={GroceryImage}
-                alt="Grocery Management"
+                alt="Reset Password"
                 className="w-full max-w-md object-contain"
               />
 
               <h2 className="text-4xl font-bold text-white mt-8">
-                Smart Grocery Management
+                Secure Password Reset
               </h2>
 
               <p className="text-green-100 mt-4 text-lg leading-relaxed">
-                Manage inventory, billing, analytics,
-                and sales all in one platform.
+                Enter OTP and create your new password
               </p>
 
             </div>
           </div>
 
-          {/* RIGHT SIDE LOGIN FORM */}
+          {/* RIGHT */}
           <div className="p-8 md:p-14 flex flex-col justify-center">
 
             <div className="mb-10">
+
               <h1 className="text-4xl font-bold text-gray-900 mb-3">
-                Welcome Back 👋
+                Reset Password 🔑
               </h1>
 
               <p className="text-gray-500">
-                Login to continue managing your grocery system
+                Enter OTP sent to your email
               </p>
+
             </div>
 
             <form
@@ -111,87 +122,84 @@ const Login = () => {
               className="space-y-6"
             >
 
-              {/* EMAIL */}
+              {/* OTP */}
               <div>
+
                 <label className="block text-gray-700 font-medium mb-2">
-                  Email
+                  OTP
                 </label>
 
                 <input
-                  type="email"
-                  placeholder="Enter your email"
-                  {...formik.getFieldProps("email")}
+                  type="text"
+                  placeholder="Enter OTP"
+                  {...formik.getFieldProps("otp")}
                   className="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
 
-                {formik.touched.email && formik.errors.email && (
-                  <p className="text-red-500 text-sm mt-2">
-                    {formik.errors.email}
-                  </p>
-                )}
               </div>
 
               {/* PASSWORD */}
               <div>
+
                 <label className="block text-gray-700 font-medium mb-2">
-                  Password
+                  New Password
                 </label>
 
                 <input
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder="Enter new password"
                   {...formik.getFieldProps("password")}
                   className="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
 
-                {formik.touched.password && formik.errors.password && (
-                  <p className="text-red-500 text-sm mt-2">
-                    {formik.errors.password}
-                  </p>
-                )}
               </div>
 
-              {/* REMEMBER + FORGOT */}
-              <div className="flex items-center justify-between text-sm">
+              {/* CONFIRM PASSWORD */}
+              <div>
 
-                <label className="flex items-center gap-2 text-gray-600">
-                  <input
-                    type="checkbox"
-                    {...formik.getFieldProps("rememberMe")}
-                  />
-                  Remember me
+                <label className="block text-gray-700 font-medium mb-2">
+                  Confirm Password
                 </label>
 
-                <Link
-                  to="/forgot-password"
-                  className="text-green-600 hover:text-green-700 font-medium"
-                >
-                  Forgot Password?
-                </Link>
+                <input
+                  type="password"
+                  placeholder="Confirm password"
+                  {...formik.getFieldProps("confirmPassword")}
+                  className="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
 
               </div>
 
-              {/* LOGIN BUTTON */}
+              {/* ERROR */}
+              {formik.errors.otp && (
+
+                <p className="text-red-500 text-sm">
+                  {formik.errors.otp}
+                </p>
+
+              )}
+
               <button
                 type="submit"
                 disabled={formik.isSubmitting}
                 className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-semibold transition duration-200"
               >
-                {formik.isSubmitting
-                  ? "Logging in..."
-                  : "Login"}
+                {
+                  formik.isSubmitting
+                    ? "Resetting..."
+                    : "Reset Password"
+                }
               </button>
 
-              {/* REGISTER LINK */}
               <p className="text-center text-gray-600">
 
-                Don&apos;t have an account?{" "}
+                Back to{" "}
 
                 <Link
-                  to="/register"
+                  to="/login"
                   className="text-green-600 font-semibold hover:text-green-700"
                 >
-                  Register
+                  Login
                 </Link>
 
               </p>
@@ -206,4 +214,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ResetPassword;

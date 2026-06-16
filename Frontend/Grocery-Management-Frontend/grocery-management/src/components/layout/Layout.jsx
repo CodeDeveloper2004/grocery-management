@@ -15,7 +15,7 @@ function Layout() {
 
       <main
         className={`
-          w-full min-h-screen bg-gray-100 p-6
+          w-full min-h-screen bg-gray-100
           transition-all duration-300
           ${collapsed ? "ml-17" : "ml-64"}
         `}

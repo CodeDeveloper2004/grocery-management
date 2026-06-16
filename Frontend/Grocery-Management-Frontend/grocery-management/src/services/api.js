@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import { toast } from "react-toastify";
 const API = axios.create({
   baseURL: "http://localhost:8080",
 });
@@ -17,7 +17,6 @@ API.interceptors.request.use(
       sessionStorage.getItem("token");
 
     if (token) {
-
       config.headers.Authorization =
         `Bearer ${token}`;
 
@@ -30,6 +29,35 @@ API.interceptors.request.use(
 
     return Promise.reject(error);
 
+  }
+);
+
+API.interceptors.response.use(
+  response => response,
+
+  error => {
+
+    if (
+      error.response?.status === 401
+    ) {
+
+      toast.error(
+        error.response.data.message
+      );
+
+      localStorage.removeItem(
+        "token"
+      );
+
+      sessionStorage.removeItem(
+        "token"
+      );
+
+      window.location.href =
+        "/login";
+    }
+
+    return Promise.reject(error);
   }
 );
 
@@ -55,5 +83,6 @@ API.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
 
 export default API;
